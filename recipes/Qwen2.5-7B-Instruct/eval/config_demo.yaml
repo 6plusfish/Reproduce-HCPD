@@ -1,0 +1,65 @@
+# Model arguments
+model_name_or_path: Qwen/Qwen2.5-7B-Instruct
+model_revision: main
+torch_dtype: bfloat16
+attn_implementation: flash_attention_2
+
+# Data training arguments
+# ['llama2_chat_7B', 'llama2_chat_13B', 'llama3.1-8B', 'qwen2.5-3B-I', 'qwen2.5-7B-I', 'qwen3-8B']
+# ["trivia_qa", "sciq_train", "nq_open", 'TruthfulQA', 'TruthfulQA_gen', 'TriviaQA', 'TydiQA', 'CoQA']
+dataset_name: TruthfulQA_llama3.1-8B
+dataset_prompt_column: question&answer&ground_truth
+# system_prompt: "You are a helpful AI Assistant that provides well-reasoned and detailed responses. You first think about the reasoning process as an internal monologue and then provide the user with the answer. Respond in the following format: <think>\n...\n</think>\n<answer>\n...\n</answer>"
+system_prompt: "You are Qwen, created by Alibaba Cloud. You are a helpful assistant."
+
+# LoRA configuration
+use_peft: true
+target_modules: ["q_proj", "k_proj", "v_proj", "o_proj"]
+lora_alpha: 32
+lora_dropout: 0.1
+r: 8
+
+# GRPO trainer config
+bf16: true
+use_vllm: true
+do_eval: true
+gradient_accumulation_steps: 1
+gradient_checkpointing: true
+gradient_checkpointing_kwargs:
+  use_reentrant: true
+# hub_model_id: Qwen2.5-7B-HalDet-GRPO
+# hub_strategy: every_save
+# learning_rate: 2.0e-05
+log_completions: true
+log_level: info
+logging_first_step: true
+logging_steps: 1
+logging_strategy: steps
+lr_scheduler_type: cosine_with_min_lr
+lr_scheduler_kwargs:
+  min_lr_rate: 0.1
+# lr_scheduler_type: cosine
+max_prompt_length: 512
+max_completion_length: 1024
+# max_completion_length: 2048
+temperature: 1.0
+max_steps: -1
+num_generations: 10
+num_train_epochs: 1
+output_dir: data/Qwen2.5-7B-HalDet-GRPO
+overwrite_output_dir: true
+per_device_eval_batch_size: 10
+per_device_train_batch_size: 10
+push_to_hub: false
+report_to:
+- wandb
+reward_funcs:
+- score_align
+reward_weights:
+- 1.0
+save_strategy: "steps"
+save_steps: 102
+# save_strategy: "epoch"
+# save_total_limit: 1
+seed: 42
+warmup_ratio: 0.05

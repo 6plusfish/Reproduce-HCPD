@@ -1,0 +1,5 @@
+data/
+logs/
+pretrain_models/
+wandb/
+HCPD/src/open_r1.egg-info/
