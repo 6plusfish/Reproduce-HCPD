@@ -4,6 +4,9 @@
     <a href="https://openreview.net/forum?id=s4Jn6bKYGI">
         <img alt="Static Badge" src="https://img.shields.io/badge/Paper-ICML-red">
     </a>
+    <a href="https://arxiv.org/abs/2606.12900">
+        <img alt="arXiv" src="https://img.shields.io/badge/arXiv-2606.12900-b31b1b?logo=arxiv">
+    </a>
 </p>
 
 <h4 align="center"></a>
