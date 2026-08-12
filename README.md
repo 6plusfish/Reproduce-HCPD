@@ -64,11 +64,20 @@ The results are shown below:
 | TPR at threshold 8.2 | 0.5091 |
 | TPR at threshold 7.2 | 0.7065 |
 
-The Area Under the Receiver Operating Characteristic curve (**AUROC**) evaluates how well the detector ranks truthful and hallucinated responses across all possible decision thresholds. An AUROC of **0.8741** indicates strong ranking ability in this run: the detector assigned meaningfully separable scores to the two classes, although the separation was not perfect.
+| Experiment                 |           AUROC |
+| -------------------------- | --------------: |
+| HCPD paper                 | 0.8625 ± 0.0108 |
+| This checkpoint validation |      **0.8741** |
+| Difference from paper mean |         +0.0116 |
+
+The Area Under the Receiver Operating Characteristic curve (**AUROC**) evaluates how well the detector ranks truthful and hallucinated responses across all possible decision thresholds. An AUROC of **0.8741** indicates strong ranking ability in this run: the detector assigned meaningfully separable scores to the two classes, although the separation was not perfect. This result was 0.0116, or 1.16 percentage points, above the average AUROC reported in the paper for HCPD on TriviaQA with LLaMA-3.1-8B. 
+
 
 ## 5. Discussion
 
-The most important result is the AUROC of 0.8741. Because AUROC summarizes performance over the full threshold range, it provides stronger evidence of discriminative ability than any single threshold result. The value suggests that the reproduced pipeline learned or retained a useful relationship between HCPD's truthfulness scores and the BLEURT-derived labels on TriviaQA.
+The most important result is the AUROC of 0.8741. Because AUROC summarizes performance over the full threshold range, it provides stronger evidence of discriminative ability than any single threshold result. The value suggests that the reproduced pipeline learned or retained a useful relationship between HCPD's truthfulness scores and the BLEURT-derived labels on TriviaQA. 
+
+The AUROC result was 0.0116 above the AUROC reported in the paper. However, the paper reports the average and standard deviation from five independent random data splits, whereas this reproduction records only one checkpoint-validation run with seed 42. Therefore, the small difference does not prove that this run performed better than the original experiment. Instead, it shows that the reproduced result is close to and consistent with the performance reported in the paper.
 
 The threshold results show that changing the threshold affects how many positive samples are detected. At the strictest reported threshold of 9.2, the TPR was only 0.1091, meaning that relatively few positive instances were accepted under this cutoff. Lowering the threshold to 8.2 increased TPR to 0.5091, and lowering it further to 7.2 increased TPR to 0.7065. This pattern is expected: lowering the threshold classifies more samples as positive, so more positive samples are correctly identified.
 
