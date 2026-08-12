@@ -1,99 +1,111 @@
-<h1 align="center">
-     <br>Zero-source LLM Hallucination Detection with Human-like Criteria Probing
-<p align="center">
-    <a href="https://openreview.net/forum?id=s4Jn6bKYGI">
-        <img alt="Static Badge" src="https://img.shields.io/badge/Paper-ICML-red">
-    </a>
-    <a href="https://arxiv.org/abs/2606.12900">
-        <img alt="arXiv" src="https://img.shields.io/badge/arXiv-2606.12900-b31b1b?logo=arxiv">
-    </a>
-</p>
+[README.md](https://github.com/user-attachments/files/30946637/README.md)
+# Reproduction of HCPD on TriviaQA
 
-<h4 align="center"></a>
+This repository records a reproduction of **HCPD (Human-like Criteria Probing for Hallucination Detection)** using the TriviaQA benchmark and Llama 3.1 8B as the evaluated target model. The original implementation is available in the [original HCPD repository](https://github.com/TRISKEL10N/HCPD).
 
->[Jiahao Yang](https://scholar.google.com/citations?view_op=list_works&hl=zh-CN&hl=zh-CN&user=q3JnCI4AAAAJ), Shuhai Zhang, Hailong Kang, Feng Liu, Qi Chen, Mingkui Tan
-<!-- <sub>South China University of Technology, Pazhou Laboratory</sub> -->
+## 1. Project Overview
 
-<p align="center">
-  <img src="./assets/overview.png" alt="NSG-VD" width="7000" align="center">
-</p>
+Large language models can produce fluent but factually incorrect responses. HCPD addresses this problem under the zero-source setting, where hallucination detection must rely only on the observed question–answer pair, without access to external knowledge sources or the target model's internal states.
 
-## ✨ Abstract
+HCPD uses a scoring agent to construct context-dependent evaluation criteria, assign importance weights, score the response under each criterion, and aggregate the scores into an overall truthfulness score. The original method further applies reward-based alignment and multi-sampling aggregation to improve detection reliability and interpretability.
 
-Large language models (LLMs) often hallucinate by generating factually incorrect or unfaithful content, posing significant risks to their safe use. Detecting such hallucinations is particularly challenging under the *zero-source constraint*, where no model internals or external references are available, and detection must rely solely on the textual query–answer pair. In this paper,  we propose *Human-like Criteria Probing* for Hallucination Detection (HCPD), a paradigm that emulates the multi-faceted reasoning of human evaluators. Its core is an *Human-like Criteria Probing* (HCP) mechanism, in which an LLM agent adaptively decomposes its judgment into a weighted set of interpretable criteria and aggregates criterion-specific scores into a final truthfulness measure. To achieve this adaptive capability, we introduce a reward-based alignment scheme using only weak supervision from semantic consistency. At inference, we employ a multi-sampling aggregation strategy to ensures robust decisions while preserving full interpretability. We further provide theoretical analysis supporting the reliability of our approach. Extensive experiments show that HCPD consistently outperforms state-of-the-art baselines, offering an effective and explainable solution for zero-source hallucination detection.
+## 2. Reproduction Purpose
 
-## ⚙️ Requirements
+The purpose of this reproduction was to evaluate the reproducibility and practical applicability of the HCPD framework for zero-source hallucination detection. By implementing the official evaluation pipeline on the TriviaQA dataset, this study examines whether HCPD can effectively distinguish truthful responses from hallucinated responses without relying on external knowledge sources or access to the target model’s internal states.
+Rather than replicating every experiment reported in the original paper, this reproduction focuses on verifying the main methodology and critically analysing its performance under a selected experimental configuration.
 
-- **GPU:** 2 × NVIDIA RTX GPUs with 80 GB memory
-- **CUDA:** 12.4
-- **Python:** 3.11
-- **PyTorch:** 2.6.0
+## 3. Reproduction Process
 
-## 💡 Virtual Environment
-
-Create a virtual environment and install all required dependencies for training and evaluation.
+The official HCPD repository was cloned and configured using Python 3.11, PyTorch 2.6.0, and CUDA 12.4. The required dependencies and datasets were installed using the setup scripts provided by the authors:
 ```bash
+git clone https://github.com/TRISKEL10N/HCPD.git
+cd HCPD
 bash setup.sh
 conda activate HCPD
-```
-
-## 📂 Data and Pre-trained Models
-
-- **Dataset:** We use four widely adopted QA benchmarks ([TriviaQA](https://huggingface.co/datasets/mandarjoshi/trivia_qa), [SciQ](https://huggingface.co/datasets/allenai/sciq) (train), [NQ Open](https://huggingface.co/datasets/google-research-datasets/nq_open), and [CoQA](https://downloads.cs.stanford.edu/nlp/data/coqa/coqa-dev-v1.0.json)) to construct the hallucination detection datasets. The generated datasets can be obtained and stored in `./generated_datasets` by running the command below:
-```bash
 bash generate_datasets.sh
 ```
-
-- **Pre-trained models:** We adopt the [Qwen2.5-7B-Instruct](https://huggingface.co/Qwen/Qwen2.5-7B-Instruct) as the scoring agent and choose [Llama-3.1-8B](https://huggingface.co/meta-llama/Llama-3.1-8B), [Qwen3-8B](https://huggingface.co/Qwen/Qwen3-8B) as the evaluated target LLMs in the main experiments.
-
-The datasets and pre-trained models will be automatically downloaded to `./.cache`. 
-Alternatively, they can be downloaded manually from the corresponding official repositories. After downloading, please configure the **MODEL_PATH** in the run scripts.
-
-## 🚀 Quick Start
-
-Pretrained checkpoints are provided in [Google Drive](https://drive.google.com/file/d/15kD2ngCHMIytVomXq42drbQG4scEwXiB/view?usp=sharing). The results can be quickly verified using the following bash scripts.
-```bash
-bash quick_validation.sh
-```
-
-## ▶️ Main Experiments 
-
-Training and evaluation pipelines are provided through the following bash scripts.
-
-- TriviaQA:
+After configuring the model paths, the TriviaQA experiment was executed using:
 ```bash
 bash run_TriviaQA.sh
 ```
+The main experimental configuration is summarised below:
 
-- SciQ:
+| Component                   | Configuration       |
+| --------------------------- | ------------------- |
+| Dataset                     | TriviaQA            |
+| Target model                | Llama 3.1 8B        |
+| HCPD scoring agent          | Qwen2.5-7B-Instruct |
+| Semantic-consistency metric | BLEURT              |
+| Random seed                 | 42                  |
+| Truthful samples            | 385                 |
+| Hallucinated samples        | 445                 |
+| Total evaluated samples     | 830                 |
+
+
+The reproduction covered environment installation, dataset loading, model configuration, TriviaQA evaluation, and the calculation of AUROC and TPR at three decision thresholds. The evaluated dataset contained 385 truthful and 445 hallucinated responses, representing approximately 46.4% and 53.6% of the samples, respectively.
+
+This reproduction focused on validating the core HCPD pipeline under one selected configuration. Experiments on SciQ, NQ Open, and CoQA, evaluations of additional target models, comparisons with all reported baselines, ablation studies, and multi-seed experiments were outside the scope of this reproduction.
+
+## 4. Results
+The datasets required for evaluation were first downloaded and prepared using:
+
 ```bash
-bash run_SciQ.sh
+bash generate_datasets.sh
 ```
-
-- NQ Open:
+The following results were obtained through checkpoint-based validation rather than training the HCPD model from scratch. The pretrained checkpoint provided by the original authors was evaluated using:
 ```bash
-bash run_NQOpen.sh
+bash quick_validation.sh
 ```
+The results are shown below:
+| Metric | Result |
+| --- | ---: |
+| AUROC | **0.8741** |
+| TPR at threshold 9.2 | 0.1091 |
+| TPR at threshold 8.2 | 0.5091 |
+| TPR at threshold 7.2 | 0.7065 |
 
-- CoQA:
-```bash
-bash run_CoQA.sh
-```
+The Area Under the Receiver Operating Characteristic curve (**AUROC**) evaluates how well the detector ranks truthful and hallucinated responses across all possible decision thresholds. An AUROC of **0.8741** indicates strong ranking ability in this run: the detector assigned meaningfully separable scores to the two classes, although the separation was not perfect.
 
-**Output Directory:** 
-Model checkpoints generated during training are saved to `./data_{metric}`. Evaluation logs and test results are saved to `./logs`.
+## 5. Discussion
+
+The most important result is the AUROC of 0.8741. Because AUROC summarizes performance over the full threshold range, it provides stronger evidence of discriminative ability than any single threshold result. The value suggests that the reproduced pipeline learned or retained a useful relationship between HCPD's truthfulness scores and the BLEURT-derived labels on TriviaQA.
+
+The threshold results show that changing the threshold affects how many positive samples are detected. At the strictest reported threshold of 9.2, the TPR was only 0.1091, meaning that relatively few positive instances were accepted under this cutoff. Lowering the threshold to 8.2 increased TPR to 0.5091, and lowering it further to 7.2 increased TPR to 0.7065. This pattern is expected: lowering the threshold classifies more samples as positive, so more positive samples are correctly identified.
+
+These results also show why selecting a deployment threshold from TPR alone would be insufficient. A lower threshold improves sensitivity, but it may also increase the false-positive rate. Since the result file does not report FPR, precision, specificity, F1, or a confusion matrix, it is not possible to determine which of the three thresholds provides the best operational balance. The class distribution was only moderately imbalanced, with 445 hallucinated and 385 truthful samples. This makes AUROC a reasonable summary metric.
+
+Overall, the experiment successfully validates the TriviaQA evaluation path and produces reasonable and internally consistent detection statistics. However, the result should be treated as evidence that the selected configuration can run and separate the two classes—not as a complete reproduction of every result reported in the HCPD paper.
+
+## 6. Limitations
+
+- Only TriviaQA and one target-model configuration were evaluated.
+- Only one random seed was recorded, so the results may vary between runs.
+- The log does not include FPR, AUPRC, precision, recall by class, F1, or a confusion matrix.
+- The three TPR values cannot identify an optimal threshold without corresponding false-positive statistics.
 
 
-## 📖 Citation
+## 7. Conclusion
 
-If you find this work useful in your research, please consider citing:
+This reproduction successfully executed the HCPD TriviaQA evaluation configuration using Llama 3.1 8B and Qwen2.5-7B-Instruct. The resulting AUROC of 0.8741 demonstrates strong hallucination-ranking performance in the recorded run. The threshold analysis further confirms the expected trade-off between strictness and sensitivity. Future verification should add multiple seeds, complete ROC and precision–recall statistics, and direct comparisons with the corresponding paper configuration.
+
+## 8. Citation
+
+If you use the original HCPD implementation, cite the authors' work:
 
 ```bibtex
 @inproceedings{yang2026zerosource,
   title={Zero-source {LLM} Hallucination Detection with Human-like Criteria Probing},
-  author={Jiahao Yang and Shuhai Zhang and Hailong Kang and Feng Liu and Qi Chen and Mingkui Tan},
+  author={Yang, Jiahao and Zhang, Shuhai and Kang, Hailong and Liu, Feng and Chen, Qi and Tan, Mingkui},
   booktitle={Forty-third International Conference on Machine Learning},
   year={2026},
   url={https://openreview.net/forum?id=s4Jn6bKYGI}
 }
 ```
+## 9. Reference
+
+Yang, J., Zhang, S., Kang, H., Liu, F., Chen, Q., and Tan, M.
+Zero-source LLM Hallucination Detection with Human-like Criteria Probing.
+Forty-third International Conference on Machine Learning, 2026.
+
+Original HCPD implementation:
+https://github.com/TRISKEL10N/HCPD
