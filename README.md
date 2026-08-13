@@ -75,15 +75,11 @@ The Area Under the Receiver Operating Characteristic curve (**AUROC**) evaluates
 
 ## 5. Discussion
 
-The most important result is the AUROC of 0.8741. Because AUROC summarizes performance over the full threshold range, it provides stronger evidence of discriminative ability than any single threshold result. The value suggests that the reproduced pipeline learned or retained a useful relationship between HCPD's truthfulness scores and the BLEURT-derived labels on TriviaQA. 
+The main result was an AUROC of 0.8741, indicating that HCPD could effectively distinguish between truthful and hallucinated responses on TriviaQA. This result was 0.0116 higher than the value reported in the paper. However, the paper reported the average of five independent data splits, while this reproduction used one run with seed 42. Therefore, the difference does not show better performance, but confirms that the reproduced result was close to the original finding.
 
-The AUROC result was 0.0116 above the AUROC reported in the paper. However, the paper reports the average and standard deviation from five independent random data splits, whereas this reproduction records only one checkpoint-validation run with seed 42. Therefore, the small difference does not prove that this run performed better than the original experiment. Instead, it shows that the reproduced result is close to and consistent with the performance reported in the paper.
+The TPR increased from 0.1091 at a threshold of 9.2 to 0.5091 at 8.2 and 0.7065 at 7.2. This shows that lowering the threshold allowed the method to identify more positive samples. However, TPR alone is insufficient for selecting the best threshold because a lower threshold may also increase false positives.
 
-The threshold results show that changing the threshold affects how many positive samples are detected. At the strictest reported threshold of 9.2, the TPR was only 0.1091, meaning that relatively few positive instances were accepted under this cutoff. Lowering the threshold to 8.2 increased TPR to 0.5091, and lowering it further to 7.2 increased TPR to 0.7065. This pattern is expected: lowering the threshold classifies more samples as positive, so more positive samples are correctly identified.
-
-These results also show why selecting a deployment threshold from TPR alone would be insufficient. A lower threshold improves sensitivity, but it may also increase the false-positive rate. Since the result file does not report FPR, precision, specificity, F1, or a confusion matrix, it is not possible to determine which of the three thresholds provides the best operational balance. The class distribution was only moderately imbalanced, with 445 hallucinated and 385 truthful samples. This makes AUROC a reasonable summary metric.
-
-Overall, the experiment successfully validates the TriviaQA evaluation path and produces reasonable and internally consistent detection statistics. However, the result should be treated as evidence that the selected configuration can run and separate the two classes—not as a complete reproduction of every result reported in the HCPD paper.
+Overall, the experiment confirms that the HCPD TriviaQA pipeline can run successfully and produce reasonable detection results. The result supports the method's ability to separate truthful and hallucinated responses under the selected configuration.
 
 ## 6. Limitations
 
